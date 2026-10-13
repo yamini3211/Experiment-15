@@ -1,0 +1,56 @@
+# WEEK 14: BUILDING A SIMPLE LLM AGENT
+# Install:
+# pip install langchain langchain-openai
+ 
+from langchain_openai import ChatOpenAI
+from langchain_core.tools import tool
+from langchain.agents import create_agent
+ 
+print("===== WEEK 14: SIMPLE LLM AGENT =====")
+ 
+@tool
+def calculator(expression: str) -> str:
+    """Calculate a basic mathematical expression."""
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"Error: {e}"
+ 
+llm = ChatOpenAI(
+    model="gpt-4o-mini",
+    api_key="YOUR_OPENAI_API_KEY"
+)
+ 
+agent = create_agent(
+    model=llm,
+    tools=[calculator],
+    system_prompt="""
+    You are a helpful AI assistant.
+    Use the calculator tool whenever a mathematical calculation is required.
+    """
+)
+ 
+question = "What is 245 multiplied by 786?"
+ 
+print("\nUser Question:")
+print(question)
+ 
+try:
+    response = agent.invoke(
+        {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": question
+                }
+            ]
+        }
+    )
+ 
+    print("\n--- AGENT RESPONSE ---")
+    print(response["messages"][-1].content)
+ 
+except Exception as e:
+    print("\nError:", e)
+ 
